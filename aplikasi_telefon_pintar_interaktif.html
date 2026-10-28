@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ms" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aplikasi Pintar Mudah Alih</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Sembunyikan scrollbar untuk pengalaman seperti aplikasi native */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Touch feedback & animation */
+        .tap-effect {
+            transition: transform 0.1s ease, opacity 0.1s ease;
+        }
+        .tap-effect:active {
+            transform: scale(0.96);
+            opacity: 0.8;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out forwards;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans h-full flex flex-col justify-center items-center selection:bg-brand-500 selection:text-white antialiased">
+
+    <!-- Container Utama Mengikut Simulasi Telefon Pintar (Mobile Container) -->
+    <div class="w-full max-w-md h-full sm:h-[92vh] sm:max-h-[850px] bg-white dark:bg-gray-900 sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative sm:border-[8px] sm:border-gray-800 dark:sm:border-gray-800">
+
+        <!-- Bar Status Atas Simulasi (Notch & Time) -->
+        <div class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-gray-700 dark:text-gray-300 z-20 sticky top-0 border-b border-gray-100 dark:border-gray-800">
+            <span id="live-time">09:41</span>
+            <div class="flex items-center space-x-2 text-xs">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full text-green-500"></i>
+            </div>
+        </div>
+
+        <!-- Kawasan Kandungan Utama (Main Content Container) -->
+        <div class="flex-1 overflow-y-auto no-scrollbar p-5 pb-24" id="content-area">
+
+            <!-- TAB 1: HALAMAN UTAMA (DASHBOARD) -->
+            <section id="tab-home" class="tab-content active space-y-6">
+                <!-- Header Profil Ringkas -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Selamat Datang Kembali</p>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span id="display-user-name">Pengguna</span> 👋
+                        </h1>
+                    </div>
+                    <img id="dashboard-avatar" src="https://placehold.co/100x100/2563eb/ffffff?text=User" alt="Profil" class="w-12 h-12 rounded-full border-2 border-brand-500 object-cover shadow-sm">
+                </div>
+
+                <!-- Kad Diskaun / Pengumuman Utama (Hero Banner) -->
+                <div class="bg-gradient-to-r from-brand-600 to-indigo-600 text-white p-5 rounded-3xl shadow-lg relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-medium backdrop-blur-md">Status Pro</span>
+                        <h2 class="text-xl font-bold mt-2">Produktiviti Hari Ini</h2>
+                        <p class="text-sm text-blue-100 mt-1">Selesaikan tugasan anda dengan lebih pantas & teratur.</p>
+                        <button onclick="switchTab('tasks')" class="mt-4 bg-white text-brand-600 font-semibold px-4 py-2 rounded-xl text-xs shadow hover:bg-blue-50 tap-effect transition">
+                            Lihat Tugasan <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                    <!-- Hiasan latar belakang -->
+                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+                </div>
+
+                <!-- Kad Statistik Ringkas -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Ringkasan Aktiviti</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/50 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Tugasan</p>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white" id="stat-total-tasks">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/50 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Selesai</p>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white" id="stat-completed-tasks">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tindakan Pantas (Quick Actions) -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Tindakan Pantas</h3>
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <button onclick="quickAddTaskPrompt()" class="flex flex-col items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 tap-effect border border-gray-100 dark:border-gray-700/50">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-base mb-1">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <span class="text-[11px] font-medium">Tambah</span>
+                        </button>
+                        <button onclick="toggleDarkMode()" class="flex flex-col items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 tap-effect border border-gray-100 dark:border-gray-700/50">
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base mb-1">
+                                <i class="fas fa-moon"></i>
+                            </div>
+                            <span class="text-[11px] font-medium">Tema</span>
+                        </button>
+                        <button onclick="switchTab('profile')" class="flex flex-col items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 tap-effect border border-gray-100 dark:border-gray-700/50">
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-base mb-1">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="text-[11px] font-medium">Profil</span>
+                        </button>
+                        <button onclick="showToast('Modul simpanan awan aktif!')" class="flex flex-col items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 tap-effect border border-gray-100 dark:border-gray-700/50">
+                            <div class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 flex items-center justify-center text-base mb-1">
+                                <i class="fas fa-sync"></i>
+                            </div>
+                            <span class="text-[11px] font-medium">Sync</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Petua Hari Ini -->
+                <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-start space-x-3">
+                    <i class="fas fa-lightbulb text-amber-500 text-lg mt-0.5"></i>
+                    <div>
+                        <h4 class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase">Petua Produktiviti</h4>
+                        <p class="text-xs text-amber-900 dark:text-amber-200 mt-1">Gunakan teknik Pomodoro: Kerja 25 minit, berehat 5 minit untuk kekal fokus!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: HALAMAN TUGASAN (TASKS / TO-DO) -->
+            <section id="tab-tasks" class="tab-content space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Senarai Tugasan</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Urus aktiviti harian anda</p>
+                    </div>
+                    <span id="task-count-badge" class="bg-brand-100 text-brand-600 dark:bg-brand-900/50 dark:text-brand-300 text-xs font-semibold px-2.5 py-1 rounded-full">0 Tugasan</span>
+                </div>
+
+                <!-- Form Tambah Tugasan -->
+                <form id="add-task-form" onsubmit="handleAddTask(event)" class="flex gap-2">
+                    <input type="text" id="task-input" placeholder="Tambah tugasan baru..." required
+                        class="flex-1 bg-gray-50 dark:bg-gray-800 text-sm border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white placeholder-gray-400">
+                    <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-3 rounded-xl tap-effect shadow-md flex items-center justify-center">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </form>
+
+                <!-- Filter Tugasan -->
+                <div class="flex space-x-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+                    <button onclick="setFilter('all')" id="filter-all" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-500 text-white">Semua</button>
+                    <button onclick="setFilter('active')" id="filter-active" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">Belum Selesai</button>
+                    <button onclick="setFilter('completed')" id="filter-completed" class="filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">Selesai</button>
+                </div>
+
+                <!-- Senarai Item Tugasan -->
+                <div id="task-list" class="space-y-2">
+                    <!-- Ditambah secara dinamik menerusi JS -->
+                </div>
+
+                <!-- Keadaan Kosong (Empty State) -->
+                <div id="empty-state" class="hidden text-center py-10">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tiada tugasan ditemui</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Sila tambah tugasan baru di atas.</p>
+                </div>
+            </section>
+
+            <!-- TAB 3: HALAMAN PROFIL & TETAPAN -->
+            <section id="tab-profile" class="tab-content space-y-5">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Tetapan & Profil</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Selenggara akaun dan aplikasi anda</p>
+                </div>
+
+                <!-- Kad Maklumat Profil -->
+                <div class="bg-gray-50 dark:bg-gray-800/80 p-4 rounded-3xl border border-gray-100 dark:border-gray-700/50 flex items-center space-x-4">
+                    <div class="relative">
+                        <img id="profile-avatar" src="https://placehold.co/100x100/2563eb/ffffff?text=User" alt="Profil" class="w-16 h-16 rounded-full object-cover border-2 border-brand-500">
+                        <button onclick="changeAvatarPrompt()" class="absolute bottom-0 right-0 bg-brand-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-900 dark:text-white text-base" id="profile-name-text">Pengguna Aplikasi</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400" id="profile-email-text">pengguna@contoh.my</p>
+                        <span class="inline-block mt-1 bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 text-[10px] font-semibold px-2 py-0.5 rounded-full">Akaun Aktif</span>
+                    </div>
+                </div>
+
+                <!-- Kemaskini Profil Form -->
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/50 space-y-3">
+                    <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kemaskini Nama</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-edit-name" placeholder="Nama penuh..." class="flex-1 bg-gray-50 dark:bg-gray-900 text-xs border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <button onclick="saveProfileName()" class="bg-brand-600 text-white text-xs font-medium px-4 py-2.5 rounded-xl tap-effect">Simpan</button>
+                    </div>
+                </div>
+
+                <!-- Senarai Tetapan (Settings List) -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-1">Tetapan Aplikasi</h4>
+
+                    <!-- Mod Gelap -->
+                    <div class="bg-gray-50 dark:bg-gray-800 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                <i class="fas fa-moon"></i>
+                            </div>
+                            <span class="text-xs font-semibold">Mod Gelap (Dark Mode)</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="dark-toggle" onchange="toggleDarkMode()" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-brand-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Pemberitahuan -->
+                    <div class="bg-gray-50 dark:bg-gray-800 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <span class="text-xs font-semibold">Pemberitahuan Push</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="notif-toggle" onchange="toggleNotifications()" checked class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:after:border-gray-600 peer-checked:bg-brand-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Padam Semua Data -->
+                    <button onclick="clearAllData()" class="w-full bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 p-3.5 rounded-2xl flex items-center justify-between tap-effect">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 flex items-center justify-center">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                            <span class="text-xs font-semibold">Padam Semua Data LocalStorage</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-xs opacity-50"></i>
+                    </button>
+                </div>
+
+                <div class="text-center pt-2">
+                    <p class="text-[11px] text-gray-400">Versi Aplikasi 1.0.0 (Mobile-First UI)</p>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Mesej Toast Notifikasi Ringkas -->
+        <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center gap-2 border border-gray-700">
+            <i class="fas fa-info-circle text-brand-400"></i>
+            <span id="toast-msg">Notifikasi</span>
+        </div>
+
+        <!-- NAVIGASI BAWAH (BOTTOM NAVIGATION BAR) -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 px-6 py-2.5 flex justify-around items-center z-30">
+            <!-- Tab Utama -->
+            <button onclick="switchTab('home')" id="nav-home" class="nav-item active flex flex-col items-center text-brand-600 dark:text-brand-500 tap-effect transition-colors">
+                <i class="fas fa-house-chimney text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Utama</span>
+            </button>
+            
+            <!-- Tab Tugasan -->
+            <button onclick="switchTab('tasks')" id="nav-tasks" class="nav-item flex flex-col items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 tap-effect transition-colors">
+                <i class="fas fa-list-check text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Tugasan</span>
+            </button>
+            
+            <!-- Tab Profil -->
+            <button onclick="switchTab('profile')" id="nav-profile" class="nav-item flex flex-col items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 tap-effect transition-colors">
+                <i class="fas fa-user text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">Profil</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- LOGIK JAVASCRIPT APLIKASI -->
+    <script>
+        // State Aplikasi
+        let tasks = JSON.parse(localStorage.getItem('app_tasks')) || [
+            { id: 1, text: 'Reka bentuk prototaip aplikasi mudah alih', completed: true },
+            { id: 2, text: 'Semak tugasan projek harian', completed: false }
+        ];
+
+        let profile = JSON.parse(localStorage.getItem('app_profile')) || {
+            name: 'Ahmad Faiz',
+            email: 'faiz@contoh.my',
+            avatar: 'https://placehold.co/100x100/2563eb/ffffff?text=AF'
+        };
+
+        let currentFilter = 'all';
+
+        // Inisialisasi Aplikasi apabila DOM sedia
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            initTheme();
+            renderProfile();
+            renderTasks();
+            updateStats();
+        });
+
+        // Masa Jam Telefon Simulasi
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('live-time').textContent = `${hours}:${minutes}`;
+        }
+
+        // Penukaran Tab (Bottom Navigation)
+        function switchTab(tabId) {
+            // Sembunyikan semua tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Reset warna ikon navigasi
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('text-brand-600', 'dark:text-brand-500');
+                item.classList.add('text-gray-400', 'dark:text-gray-500');
+            });
+
+            // Tunjukkan tab terpilih
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+
+            // Aktifkan ikon navigasi terpilih
+            const targetNav = document.getElementById(`nav-${tabId}`);
+            if (targetNav) {
+                targetNav.classList.remove('text-gray-400', 'dark:text-gray-500');
+                targetNav.classList.add('text-brand-600', 'dark:text-brand-500');
+            }
+
+            // Scroll ke atas bekas kandungan utama
+            document.getElementById('content-area').scrollTop = 0;
+        }
+
+        // Mod Gelap / Terang (Dark Mode)
+        function initTheme() {
+            const isDark = localStorage.getItem('app_dark_mode') === 'true';
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('dark-toggle').checked = true;
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('dark-toggle').checked = false;
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('app_dark_mode', isDark);
+            document.getElementById('dark-toggle').checked = isDark;
+            showToast(isDark ? "Mod Gelap diaktifkan" : "Mod Terang diaktifkan");
+        }
+
+        // Pengurusan Profil
+        function renderProfile() {
+            document.getElementById('display-user-name').textContent = profile.name;
+            document.getElementById('profile-name-text').textContent = profile.name;
+            document.getElementById('profile-email-text').textContent = profile.email;
+            document.getElementById('input-edit-name').value = profile.name;
+            
+            document.getElementById('dashboard-avatar').src = profile.avatar;
+            document.getElementById('profile-avatar').src = profile.avatar;
+        }
+
+        function saveProfileName() {
+            const newName = document.getElementById('input-edit-name').value.trim();
+            if (newName) {
+                profile.name = newName;
+                // Tukar avatar text placeholder secara automatik mengikut inisial nama
+                const initials = newName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                profile.avatar = `https://placehold.co/100x100/2563eb/ffffff?text=${initials}`;
+                
+                localStorage.setItem('app_profile', JSON.stringify(profile));
+                renderProfile();
+                showToast("Nama profil dikemaskini!");
+            }
+        }
+
+        function changeAvatarPrompt() {
+            const url = prompt("Masukkan URL gambar profil baru:", profile.avatar);
+            if (url) {
+                profile.avatar = url;
+                localStorage.setItem('app_profile', JSON.stringify(profile));
+                renderProfile();
+                showToast("Gambar profil berjaya ditukar!");
+            }
+        }
+
+        // Pengurusan Tugasan (To-Do List Logic)
+        function handleAddTask(e) {
+            e.preventDefault();
+            const input = document.getElementById('task-input');
+            const text = input.value.trim();
+
+            if (text) {
+                const newTask = {
+                    id: Date.now(),
+                    text: text,
+                    completed: false
+                };
+                tasks.unshift(newTask);
+                saveTasks();
+                renderTasks();
+                updateStats();
+                input.value = '';
+                showToast("Tugasan baru ditambah!");
+            }
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            saveTasks();
+            renderTasks();
+            updateStats();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            showToast("Tugasan dipadam!");
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-500', 'text-white');
+                btn.classList.add('text-gray-500', 'dark:text-gray-400');
+            });
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-500', 'text-white');
+                activeBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
+            }
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const listContainer = document.getElementById('task-list');
+            const emptyState = document.getElementById('empty-state');
+            listContainer.innerHTML = '';
+
+            let filteredTasks = tasks;
+            if (currentFilter === 'active') {
+                filteredTasks = tasks.filter(t => !t.completed);
+            } else if (currentFilter === 'completed') {
+                filteredTasks = tasks.filter(t => t.completed);
+            }
+
+            document.getElementById('task-count-badge').textContent = `${filteredTasks.length} Tugasan`;
+
+            if (filteredTasks.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                filteredTasks.forEach(task => {
+                    const item = document.createElement('div');
+                    item.className = `p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                        task.completed 
+                        ? 'bg-gray-50/50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800 text-gray-400 dark:text-gray-500 line-through' 
+                        : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700/60 shadow-sm text-gray-800 dark:text-gray-100'
+                    }`;
+
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer" onclick="toggleTask(${task.id})">
+                            <button class="w-6 h-6 rounded-lg border flex items-center justify-center transition-colors ${
+                                task.completed 
+                                ? 'bg-green-500 border-green-500 text-white' 
+                                : 'border-gray-300 dark:border-gray-600'
+                            }">
+                                ${task.completed ? '<i class="fas fa-check text-xs"></i>' : ''}
+                            </button>
+                            <span class="text-xs font-medium truncate">${escapeHtml(task.text)}</span>
+                        </div>
+                        <button onclick="deleteTask(${task.id})" class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg text-xs tap-effect">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    `;
+                    listContainer.appendChild(item);
+                });
+            }
+        }
+
+        function quickAddTaskPrompt() {
+            switchTab('tasks');
+            document.getElementById('task-input').focus();
+        }
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            document.getElementById('stat-total-tasks').textContent = total;
+            document.getElementById('stat-completed-tasks').textContent = completed;
+        }
+
+        function saveTasks() {
+            localStorage.setItem('app_tasks', JSON.stringify(tasks));
+        }
+
+        function toggleNotifications() {
+            const isChecked = document.getElementById('notif-toggle').checked;
+            showToast(isChecked ? "Pemberitahuan Diaktifkan" : "Pemberitahuan Dimatikan");
+        }
+
+        function clearAllData() {
+            if (confirm("Adakah anda pasti untuk memadam semua data simpanan?")) {
+                localStorage.clear();
+                tasks = [];
+                profile = {
+                    name: 'Pengguna',
+                    email: 'pengguna@contoh.my',
+                    avatar: 'https://placehold.co/100x100/2563eb/ffffff?text=User'
+                };
+                renderProfile();
+                renderTasks();
+                updateStats();
+                showToast("Semua data telah dipadam.");
+            }
+        }
+
+        // Tunjuk Pesanan Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+
+        // Fungsi Elak XSS Ringkas
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
